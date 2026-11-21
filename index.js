@@ -180,10 +180,11 @@ async function openTicket(interaction, service) {
       '**Requested by:** <@' + interaction.user.id + '>\n' +
       '**Quantity:** ' + (service === 'other' ? 'Not specified' : qty) + '\n' +
       '**Rate:** ' + unitLine + '\n' +
-      '**Estimated total:** ' + totalLine + '\n\n' +
-      '**Customer details**\n' + details + '\n\n' +
-      'A staff member will confirm availability, terms and any final price. ' +
-      'Do not share passwords, OTP codes or payment details here.');
+      '**Estimated total:** ' + totalLine + '\n' +
+      (service === 'other' ? '' : '**Proxy policy:** A proxy is used for each requested unit; proxy usage is included in the quoted per-unit price.\n') +
+      '\n**Customer details**\n' + details + '\n\n' +
+      'A staff member will confirm availability, proxy requirements, platform eligibility, terms and any final price. ' +
+      'No automatic purchase or signup is triggered. Do not share passwords, OTP codes or payment details here.');
 
     await channel.send({
       content: '<@' + interaction.user.id + '>',
