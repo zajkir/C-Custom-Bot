@@ -1,11 +1,12 @@
 {
   "name": "c-custom-bot",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "C CUSTOM navy Discord community and service desk",
+  "description": "C CUSTOM Navy Edition — Discord service storefront and private tickets",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "node --test"
   },
   "engines": {
     "node": ">=22.12.0"
