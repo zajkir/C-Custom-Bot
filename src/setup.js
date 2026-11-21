@@ -230,9 +230,14 @@ async function upsertPanel(channel, key, channelIds) {
   }
   const messages = await channel.messages.fetch({ limit: 75 });
   const marker = PANEL_PREFIX + key;
+  // V2 -> V3: edit the old product panel rather than posting an outdated duplicate.
+  const legacyMarker = key.startsWith('product-')
+    ? PANEL_PREFIX + key.slice('product-'.length)
+    : null;
   const previous = messages.find((m) =>
     m.author.id === channel.client.user.id &&
-    m.embeds.some((e) => e.footer && e.footer.text === marker)
+    m.embeds.some((e) => e.footer &&
+      (e.footer.text === marker || (legacyMarker && e.footer.text === legacyMarker)))
   );
 
   if (previous) {
