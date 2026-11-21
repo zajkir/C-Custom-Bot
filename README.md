@@ -1,104 +1,101 @@
-# 💠 C CUSTOM BOT — Navy Edition
+# 💠 C CUSTOM BOT — Navy Edition V3
 
-Custom Discord bot for a bilingual community, English service listings and private service requests.
-Built with Node.js 22+ and discord.js v14. All public-facing service panels and responses are in English.
+English-language service catalogue, Discord verification, language roles, navy-blue branded panels and private customer tickets.
 
-## Current features
+## What's included (code ready for deployment)
 
-- **/setup**: creates or refreshes 6 organized categories, 14 channels, roles and branded panels
-- **Verification button**: members receive the ✅ Verified role and unlock the members-only channels
-- **Language selection**: 🇬🇧 ENG, 🇨🇿 Czech and 🇸🇰 Slovak buttons; one language at a time
-- **Language chats**: `general-eng` for English, `general-czsk` for Czech and Slovak
-- **Price listings**: Ticketmaster Accounts and Seated Signups, tiered EUR prices
-- **Order tickets**: private channels, intake forms, estimated EUR quote and close-ticket controls
-- **Staff area**: private staff chat and order activity log
-- **Welcome**: friendly message on member join (requires Server Members Intent)
-- **Security basics**: members-only access, staff-only ticket visibility, read-only service panels, 3-second chat slowmode, interaction permissions, no stored token
-- **Idempotent setup**: refreshes managed panels and channels without deleting unrelated channels
+- **9 services** with consistent EUR pricing and dedicated rooms
+- **8 categories / 28 managed channels**, no deletion of unrelated channels
+- Welcome, detailed rules, starter guide, FAQ, proxy policy, price list, announcements and order guide
+- A basic **Verify & Enter** button that assigns the ✅ Verified role
+- Language roles **🇬🇧 ENG**, **🇨🇿 Czech**, **🇸🇰 Slovak**
+- **general-eng** and **general-czsk**, with language-based visibility
+- Branded service panels and dropdown menus for choosing among all nine services
+- Private order request modals with a quantity, service, details and calculated price estimate
+- Staff-only ticket logs, ticket closing and role-based private channel access
+- **/help /pricing /services /proxy /guide /order /ping /ticketclose /setup**
+- Runs on Node.js 22.12+ with discord.js v14; `DISCORD_TOKEN` comes only from hosting environment variables
 
-## Channel layout
+## Account generators
+
+The following platforms share one price table:
+
+| Service | 1–50 | 51–200 | 201–1,000 |
+|---|---:|---:|---:|
+| Ticketmaster | €0.80 | €0.75 | €0.65 |
+| AXS | €0.80 | €0.75 | €0.65 |
+| Eventim | €0.80 | €0.75 | €0.65 |
+| FNAC | €0.80 | €0.75 | €0.65 |
+| TicketOne | €0.80 | €0.75 | €0.65 |
+
+Prices are **EUR per account**. A selected tier applies to *the entire quantity*.
+
+## Event signups
+
+| Service | 1–100 | 101+ |
+|---|---:|---:|
+| Seated | €0.35 | €0.28 |
+| Laylo | €0.35 | €0.28 |
+| BST Hyde Park | €0.35 | €0.28 |
+| CO:BRAND | €0.35 | €0.28 |
+
+Prices are **EUR per signup**. A selected tier applies to *the entire quantity*.
+
+### Proxy usage statement
+
+Service panels and private order tickets state that a proxy is used for **each account and each signup**, included in the per-unit price. They **do not** promise one unique or dedicated IP per item, any specific proxy country, guaranteed platform acceptance or completed registration. Customers should discuss details and availability with staff before agreeing to work.
+
+This project is a storefront/request system only. It **does not generate accounts, run signup automation, rotate proxies, take payment, or guarantee event access**. Activity must comply with the third-party platforms' rules and applicable laws.
+
+## Server category structure
 
 | Category | Channels |
-| --- | --- |
-| 📌 START HERE | 👋 welcome, 📜 rules, ✅ verification, 🌍 choose-language |
-| 💠 OUR SERVICES | 📋 service-directory, 🎟️ ticketmaster-accounts, 📨 seated-signups, 📢 announcements |
-| 💬 COMMUNITY | 💬 general-czsk, 💬 general-eng |
-| 🎫 ORDER & SUPPORT | 🛒 place-an-order, 🎧 support-desk |
-| 🔐 PRIVATE TICKETS | A new private channel for each incoming request |
-| 🛡️ STAFF AREA | 💼 staff-chat, 📑 order-logs |
+|---|---|
+| 📌 START HERE | welcome, rules, verification, choose-language, getting-started |
+| 🎟️ ACCOUNT GENERATORS | account-generators, ticketmaster-accounts, axs-accounts, eventim-accounts, fnac-accounts, ticketone-accounts |
+| 📨 EVENT SIGNUPS | signup-services, seated-signups, laylo-signups, bst-hyde-park, co-brand-signups |
+| 📚 INFORMATION | service-directory, price-list, proxy-policy, faq, announcements |
+| 💬 COMMUNITY | general-czsk, general-eng |
+| 🎫 ORDER & SUPPORT | place-an-order, how-to-order, support-desk |
+| 🔐 PRIVATE TICKETS | New private customer tickets appear here |
+| 🛡️ STAFF AREA | staff-chat, order-logs |
 
-The bot creates roles for ✅ Verified, 🇬🇧 ENG, 🇨🇿 Czech, 🇸🇰 Slovak,
-🛡️ Staff, ⚙️ Admin and 👑 Owner. The server owner is an owner by Discord's built-in
-permissions. The optional Owner role is cosmetic, not required for admin commands.
+Users choose one of three language roles via buttons. Only verified users can access service listings and open an order ticket. Staff / Admin / Owner roles can access staff-only channels and customer tickets. Grant these roles only to trusted individuals.
 
-**After setup, manually assign Staff/Admin roles to trusted people.** Those roles
-control access to private tickets and staff channels but are not granted broad
-server-wide Administrator permissions.
+## Deploy update on Bot-Hosting.net
 
-## Pricing (EUR per unit)
+1. Open the `C-Custom-Bot` deployment and ensure GitHub source is `zajkir/C-Custom-Bot`, branch `main`.
+2. Check **Environment**: `DISCORD_TOKEN` must be set securely. **Never paste tokens into GitHub or Discord chats.**
+3. Restart the deployment so it pulls the newest commit. Confirm `C CUSTOM BOT ONLINE` in Console.
+4. On Discord, use **/setup** as the owner or a member with **Manage Server** permission.
+5. Wait for the setup-complete confirmation. New categories, product rooms and panels are created. Existing managed V2 channels are reused and repositioned; unrelated channels are not removed.
+6. Ensure the bot's server role is **above the Verified and language roles**, and has **Manage Roles, Manage Channels, Send Messages, View Channels, Embed Links, Read Message History**.
+7. Test: Verify → Choose a language → Browse services → Open a private ticket → Confirm its price → Close it.
 
-### Ticketmaster Accounts
-- 1–50: €0.80 each
-- 51–200: €0.75 each
-- 201–1,000: €0.65 each
+In Discord Developer Portal > **Bot**, enable **Server Members Intent** for member join notifications. Message Content Intent is not required. Use the scopes `bot` and `applications.commands` when installing the bot.
 
-### Seated Signups
-- 1–100: €0.35 each
-- 101+: €0.28 each
+## Bot commands
 
-For each order, **one tier applies to all units** (not progressive pricing).
-A ticket opening displays an estimated quote only; it does not bill, generate
-accounts, register anyone for an event or guarantee fulfillment. All activity
-must follow the relevant sites' rules and applicable laws.
+| Command | Purpose | Access |
+|---|---|---|
+| `/help` | Detailed command guide | All |
+| `/services` | Full service directory with selectors | All; orders require Verified |
+| `/pricing` | Unit prices and order examples | All |
+| `/proxy` | Proxy policy | All |
+| `/guide` | Step-by-step order guide | All |
+| `/order` | Open service selector | Verified |
+| `/ping` | Check bot response | All |
+| `/ticketclose` | Close a private ticket | Customer or authorized staff |
+| `/setup` | Create or refresh roles/channels/panels | Manage Server |
 
-## Available slash commands
+## Testing
 
-| Command | Description | Who |
-| --- | --- | --- |
-| `/help` | Commands and server guide | Everyone |
-| `/ping` | Bot connection status | Everyone |
-| `/pricing` | Public service rates | Everyone |
-| `/order` | Open private service request | Verified |
-| `/ticketclose` | Close the current order channel | Ticket owner or staff |
-| `/setup` | Create/refresh channels, panels and roles | Server owner / Manage Server |
+Run `npm install` and then `npm test` to check prices, quantity boundaries, panels and channel layout.
 
-## Deploy (Bot-Hosting.net)
+## Security notes
 
-1. Connect the private GitHub repository `zajkir/C-Custom-Bot` and select branch `main`.
-2. Use runtime **Node.js 24** (Node.js >=22.12 supported).
-3. Install command: `npm install --no-fund --no-audit`.
-4. Startup file: `index.js`. Startup command: `npm start` when supported.
-5. In hosting **Environment**, set the secret `DISCORD_TOKEN` to your bot token.
-6. In Discord Developer Portal > Bot, enable **Server Members Intent**. Message Content Intent is not required.
-7. Give the Discord bot role permissions **Manage Roles**, **Manage Channels**, **View Channels**, **Send Messages**, **Embed Links** and **Read Message History**. Place the bot role **above** Verified and language roles.
-8. Restart the hosting deployment so the latest commit is pulled.
-9. As the server owner, run `/setup` in your Discord server and wait for confirmation.
-10. Verify the buttons and create a test order ticket, then close it.
-
-Your deployment may need a manual restart to pull new GitHub commits.
-The repository update does **not** automatically change existing Discord channels
-until `/setup` has been run.
-
-## Verification limitations
-
-The Verification button only grants a role. It is **not** a CAPTCHA, identity
-verification, payment verification or an anti-alt check. Use Discord's AutoMod,
-raid protection and verification levels for stronger community protection.
-
-## Security
-
-Never commit secrets, passwords, OTPs or payment information to GitHub.
-Use your hosting provider's Environment/Secrets controls for `DISCORD_TOKEN`.
-The `.gitignore` file excludes `.env`, and `.env.example` contains placeholders.
-
-Order descriptions can contain user-supplied text. Staff should not ask users
-to share credentials, account-access codes, payment card details or sensitive documents.
-
-## Troubleshooting
-
-- **Bot offline**: inspect Console; check `DISCORD_TOKEN` and startup file.
-- **Used disallowed intents**: enable Server Members Intent in Developer Portal.
-- **Missing Permissions**: check that the bot has Manage Roles/Channels and is above member roles.
-- **No slash commands**: verify `applications.commands` install scope and restart bot.
-- **New GitHub update not visible**: restart the deployment and run `/setup`.
-- **Price/role panels duplicated**: only run one `/setup` at a time. The bot detects its own panel markers within the latest 75 channel messages.
+- Verification button grants a basic role; it is **not** CAPTCHA or identity verification. Consider Discord AutoMod and community verification settings.
+- Do not store passwords, OTP codes, payment card information or customer secrets in chat or order tickets.
+- Do not grant Administrator permission to everyone.
+- No access to live Discord server configuration is provided through GitHub alone; new channels appear **only after restarting the deployment and running /setup**.
+- Free hosting may require manual renewals or periodic restart depending on provider plan.
