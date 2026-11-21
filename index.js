@@ -7,7 +7,7 @@ const {
   MessageFlags
 } = require('discord.js');
 const {
-  NAVY, PRODUCTS, money, quote, embed, orderButtons
+  NAVY, PRODUCTS, ACCOUNT_KEYS, SIGNUP_KEYS, money, quote, embed, panel, orderButtons
 } = require('./src/branding');
 const {
   getRoles, findManagedChannel, setupGuild, CATEGORY_NAMES
@@ -32,6 +32,12 @@ const commands = [
     .setName('ping').setDescription('Check the bot connection.'),
   new SlashCommandBuilder()
     .setName('pricing').setDescription('View the current service price tiers.'),
+  new SlashCommandBuilder()
+    .setName('services').setDescription('Browse all 9 listed services.'),
+  new SlashCommandBuilder()
+    .setName('proxy').setDescription('Learn how proxies are included in services.'),
+  new SlashCommandBuilder()
+    .setName('guide').setDescription('How to request a service and receive a quote.'),
   new SlashCommandBuilder()
     .setName('order').setDescription('Open a private service request.'),
   new SlashCommandBuilder()
@@ -69,17 +75,7 @@ function hasVerified(member, roles) {
 }
 
 function formatPricing() {
-  return embed('💶 CURRENT SERVICE PRICING',
-    '**Ticketmaster Accounts**\n' +
-    '• 1–50 → **€0.80 each**\n' +
-    '• 51–200 → **€0.75 each**\n' +
-    '• 201–1,000 → **€0.65 each**\n\n' +
-    '**Seated Signups**\n' +
-    '• 1–100 → **€0.35 each**\n' +
-    '• 101+ → **€0.28 each**\n\n' +
-    'The selected rate applies to all units in a single order. ' +
-    'Use **/order** to ask about availability and receive a private quote. ' +
-    'A quote is not a payment or confirmed booking.');
+  return panel('pricing').embeds[0];
 }
 
 function orderForm(service) {
@@ -219,8 +215,8 @@ async function openTicket(interaction, service) {
 
 function parseTicket(channel) {
   if (!channel || channel.type !== ChannelType.GuildText || !channel.topic) return null;
-  const match = /^c-custom:ticket:([0-9]{16,22}):(ticketmaster|seated|other):qty=([0-9]+)/.exec(channel.topic);
-  if (!match) return null;
+  const match = /^c-custom:ticket:([0-9]{16,22}):([a-z0-9]+):qty=([0-9]+)/.exec(channel.topic);
+  if (!match || !PRODUCTS[match[2]]) return null;
   return { ownerId: match[1], service: match[2], qty: Number(match[3]) };
 }
 
@@ -280,18 +276,36 @@ async function handleCommand(interaction) {
       });
     case 'help':
       return interaction.reply({
-        embeds: [embed('💠 C CUSTOM | COMMAND GUIDE',
-          '**/help** — Show this guide.\n' +
-          '**/pricing** — View current service pricing.\n' +
-          '**/order** — Open a private request.\n' +
-          '**/ping** — Check bot status.\n' +
-          '**/ticketclose** — Close the current ticket (owner/staff).\n' +
-          '**/setup** — Install or refresh panels and channels (server managers only).\n\n' +
-          'After verification, select a language to unlock its community chat.')],
+        embeds: [embed('💠 C CUSTOM | HELP & COMMANDS',
+          '**WELCOME TO C CUSTOM**\n' +
+          'Your home for 5 account-generator services, 4 event-signup services and a bilingual community.\n\n' +
+          '**DISCOVER SERVICES**\n' +
+          '📋 **/services** — Browse the full account/signup catalogue.\n' +
+          '💶 **/pricing** — Check quantity tiers and estimates.\n' +
+          '🌐 **/proxy** — Read our proxy policy for each unit.\n' +
+          '🧭 **/guide** — How to order, step by step.\n\n' +
+          '**ORDERS & SUPPORT**\n' +
+          '🛒 **/order** — Choose a platform and open a private ticket.\n' +
+          '🔒 **/ticketclose** — Close an active ticket (customer/staff).\n\n' +
+          '**OTHER COMMANDS**\n' +
+          '🏓 **/ping** — Bot status.\n' +
+          '⚙️ **/setup** — Rebuild or refresh managed panels (Manage Server).\n\n' +
+          '✅ Verify your account first, then choose 🇬🇧 ENG, 🇨🇿 Czech or 🇸🇰 Slovak to join the right chat.\n' +
+          '🔐 Never share passwords, OTP codes or card details in tickets.')],
         flags: MessageFlags.Ephemeral
       });
     case 'pricing':
       return interaction.reply({ embeds: [formatPricing()], flags: MessageFlags.Ephemeral });
+    case 'services':
+      return interaction.reply({
+        embeds: panel('services').embeds,
+        components: orderButtons(),
+        flags: MessageFlags.Ephemeral
+      });
+    case 'proxy':
+      return interaction.reply({ embeds: panel('proxy').embeds, flags: MessageFlags.Ephemeral });
+    case 'guide':
+      return interaction.reply({ embeds: panel('orderGuide').embeds, flags: MessageFlags.Ephemeral });
     case 'order': {
       const { member, roles } = await getMemberAndRoles(interaction);
       if (!hasVerified(member, roles)) {
@@ -316,8 +330,8 @@ async function handleCommand(interaction) {
       const result = await setupGuild(interaction.guild);
       return interaction.editReply(
         '✅ **C CUSTOM setup complete.**\n' +
-        '• ' + result.count + ' managed channels across 6 categories\n' +
-        '• Verification, language selection and service panels are ready\n' +
+        '• ' + result.count + ' managed channels across ' + Object.keys(result.categories).length + ' categories\n' +
+        '• Verification, language selection and all 9 service panels are ready\n' +
         '• Staff-only order logs and private ticket system are ready\n\n' +
         'Start here: <#' + result.channels.verify.id + '>\n' +
         'Languages: <#' + result.channels.language.id + '>\n' +
@@ -385,6 +399,32 @@ async function handleButton(interaction) {
   if (interaction.customId === 'cc:close') return showCloseForm(interaction);
 }
 
+
+async function handleServiceSelect(interaction) {
+  if (!interaction.customId.startsWith('cc:select:')) return;
+  const group = interaction.customId.slice('cc:select:'.length);
+  const service = interaction.values[0];
+  const inGroup = (group === 'accounts' && ACCOUNT_KEYS.includes(service)) ||
+    (group === 'signups' && SIGNUP_KEYS.includes(service));
+
+  if (!inGroup || !PRODUCTS[service]) {
+    return interaction.reply({
+      content: 'This service is not available. Please choose an option from the menu.',
+      flags: MessageFlags.Ephemeral
+    });
+  }
+
+  const { member, roles } = await getMemberAndRoles(interaction);
+  if (!hasVerified(member, roles)) {
+    return interaction.reply({
+      content: 'Please complete member verification before opening an order.',
+      flags: MessageFlags.Ephemeral
+    });
+  }
+
+  return interaction.showModal(orderForm(service));
+}
+
 client.once(Events.ClientReady, async (readyClient) => {
   console.log('💠 C CUSTOM BOT ONLINE: ' + readyClient.user.tag);
   readyClient.user.setActivity('C CUSTOM • /help');
@@ -418,6 +458,8 @@ client.on(Events.InteractionCreate, async (interaction) => {
       await handleCommand(interaction);
     } else if (interaction.isButton()) {
       await handleButton(interaction);
+    } else if (interaction.isStringSelectMenu()) {
+      await handleServiceSelect(interaction);
     } else if (interaction.isModalSubmit()) {
       if (interaction.customId.startsWith('cc:submit:')) {
         const service = interaction.customId.slice('cc:submit:'.length);
