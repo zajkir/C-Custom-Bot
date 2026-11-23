@@ -38,6 +38,7 @@ const CHANNELS = [
   { key: 'eventim', name: '🎭・eventim-accounts', category: 'accounts', access: 'verified', panel: 'product-eventim' },
   { key: 'fnac', name: '🎪・fnac-accounts', category: 'accounts', access: 'verified', panel: 'product-fnac' },
   { key: 'ticketone', name: '🎟️・ticketone-accounts', category: 'accounts', access: 'verified', panel: 'product-ticketone' },
+  { key: 'tomorrowland', name: '🎆・tomorrowland-accounts', category: 'accounts', access: 'verified', panel: 'product-tomorrowland' },
 
   { key: 'signups', name: '📨・signup-services', category: 'signups', access: 'verified', panel: 'signups' },
   { key: 'seated', name: '📨・seated-signups', category: 'signups', access: 'verified', panel: 'product-seated' },
@@ -247,6 +248,23 @@ async function upsertPanel(channel, key, channelIds) {
   }
 }
 
+// The topic marker persists across restarts and avoids repeated promotional
+// posts every time an admin runs /setup. The post itself carries a panel key
+// so a partial failure can be retried without creating duplicate messages.
+const TOMORROWLAND_NOTICE_MARKER = 'c-custom:notice:tomorrowland-launch-v1';
+
+async function announceTomorrowlandOnce(channel, channelIds) {
+  if (channel.topic && channel.topic.includes(TOMORROWLAND_NOTICE_MARKER)) return false;
+  await upsertPanel(channel, 'tomorrowlandLaunch', channelIds);
+  const current = channel.topic || 'c-custom:channel:announcements | Managed by C CUSTOM BOT';
+  const tagged = current + ' | ' + TOMORROWLAND_NOTICE_MARKER;
+  if (tagged.length > 1024) {
+    throw new Error('Announcement channel topic has no room for the one-time launch marker.');
+  }
+  await channel.setTopic(tagged, 'Record Tomorrowland service launch announcement');
+  return true;
+}
+
 async function setupGuild(guild) {
   if (runningSetups.has(guild.id)) {
     throw new Error('Setup is already running for this server.');
@@ -288,6 +306,9 @@ async function setupGuild(guild) {
     for (const def of CHANNELS.filter((c) => c.panel)) {
       await upsertPanel(channels[def.key], def.panel, channelIds);
     }
+    // Post one dedicated launch notice to announcements, without @everyone.
+    // This is triggered by authorized /setup; not by every bot startup.
+    await announceTomorrowlandOnce(channels.announcements, channelIds);
 
     return { roles, categories, channels, count: CHANNELS.length };
   } finally {
@@ -297,5 +318,5 @@ async function setupGuild(guild) {
 
 module.exports = {
   CATEGORY_NAMES, ROLE_NAMES, CHANNELS,
-  getRoles, findManagedChannel, setupGuild
+  getRoles, findManagedChannel, setupGuild, announceTomorrowlandOnce, TOMORROWLAND_NOTICE_MARKER
 };
