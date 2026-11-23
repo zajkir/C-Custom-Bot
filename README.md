@@ -4,13 +4,13 @@ English-language service catalogue, Discord verification, language roles, navy-b
 
 ## What's included (code ready for deployment)
 
-- **9 services** with consistent EUR pricing and dedicated rooms
-- **8 categories / 28 managed channels**, no deletion of unrelated channels
+- **10 services** with EUR pricing, including a separate Tomorrowland volume price table, and dedicated rooms
+- **8 categories / 29 managed channels**, no deletion of unrelated channels
 - Welcome, detailed rules, starter guide, FAQ, proxy policy, price list, announcements and order guide
 - A basic **Verify & Enter** button that assigns the ✅ Verified role
 - Language roles **🇬🇧 ENG**, **🇨🇿 Czech**, **🇸🇰 Slovak**
 - **general-eng** and **general-czsk**, with language-based visibility
-- Branded service panels and dropdown menus for choosing among all nine services
+- Branded service panels and dropdown menus for choosing among all ten services
 - Private order request modals with a quantity, service, details and calculated price estimate
 - Staff-only ticket logs, ticket closing and role-based private channel access
 - **/help /pricing /services /proxy /guide /order /ping /ticketclose /setup**
@@ -18,7 +18,7 @@ English-language service catalogue, Discord verification, language roles, navy-b
 
 ## Account generators
 
-The following platforms share one price table:
+The following five standard platforms share one price table:
 
 | Service | 1–50 | 51–200 | 201–1,000 |
 |---|---:|---:|---:|
@@ -29,6 +29,16 @@ The following platforms share one price table:
 | TicketOne | €0.80 | €0.75 | €0.65 |
 
 Prices are **EUR per account**. A selected tier applies to *the entire quantity*.
+
+**Tomorrowland Accounts** use a separate price table:
+
+| Quantity | Price per account |
+|---|---:|
+| 1–100 | €0.20 |
+| 101–400 | €0.17 |
+| 401+ | €0.15 |
+
+Example totals: 100 = €20.00, 101 = €17.17, 400 = €68.00, 401 = €60.15. A single selected tier applies to the whole order; the order form accepts quantities up to 999,999.
 
 ## Event signups
 
@@ -45,14 +55,14 @@ Prices are **EUR per signup**. A selected tier applies to *the entire quantity*.
 
 Service panels and private order tickets state that a proxy is used for **each account and each signup**, included in the per-unit price. They **do not** promise one unique or dedicated IP per item, any specific proxy country, guaranteed platform acceptance or completed registration. Customers should discuss details and availability with staff before agreeing to work.
 
-This project is a storefront/request system only. It **does not generate accounts, run signup automation, rotate proxies, take payment, or guarantee event access**. Activity must comply with the third-party platforms' rules and applicable laws.
+This project is a storefront/request system only. The Tomorrowland listing is an enquiry and quote feature, **not a working account-registration generator**. It **does not generate accounts, run signup automation, rotate proxies, take payment, or guarantee event access**. Activity must comply with the third-party platforms' rules and applicable laws.
 
 ## Server category structure
 
 | Category | Channels |
 |---|---|
 | 📌 START HERE | welcome, rules, verification, choose-language, getting-started |
-| 🎟️ ACCOUNT GENERATORS | account-generators, ticketmaster-accounts, axs-accounts, eventim-accounts, fnac-accounts, ticketone-accounts |
+| 🎟️ ACCOUNT GENERATORS | account-generators, ticketmaster-accounts, axs-accounts, eventim-accounts, fnac-accounts, ticketone-accounts, tomorrowland-accounts |
 | 📨 EVENT SIGNUPS | signup-services, seated-signups, laylo-signups, bst-hyde-park, co-brand-signups |
 | 📚 INFORMATION | service-directory, price-list, proxy-policy, faq, announcements |
 | 💬 COMMUNITY | general-czsk, general-eng |
@@ -68,7 +78,7 @@ Users choose one of three language roles via buttons. Only verified users can ac
 2. Check **Environment**: `DISCORD_TOKEN` must be set securely. **Never paste tokens into GitHub or Discord chats.**
 3. Restart the deployment so it pulls the newest commit. Confirm `C CUSTOM BOT ONLINE` in Console.
 4. On Discord, use **/setup** as the owner or a member with **Manage Server** permission.
-5. Wait for the setup-complete confirmation. New categories, product rooms and panels are created. Existing managed V2 channels are reused and repositioned; unrelated channels are not removed.
+5. Wait for the setup-complete confirmation. New categories, product rooms and panels are created. The bot posts a **single Tomorrowland launch notice** in **announcements** on the first successful `/setup`; it records a persistent channel-topic marker so repeated setup calls do not repost the announcement. Existing managed V2 channels are reused and repositioned; unrelated channels are not removed.
 6. Ensure the bot's server role is **above the Verified and language roles**, and has **Manage Roles, Manage Channels, Send Messages, View Channels, Embed Links, Read Message History**.
 7. Test: Verify → Choose a language → Browse services → Open a private ticket → Confirm its price → Close it.
 

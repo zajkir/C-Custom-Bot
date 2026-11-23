@@ -5,13 +5,19 @@ const {
 
 const NAVY = 0x102D5C;
 const PANEL_PREFIX = 'C CUSTOM | PANEL:';
-const ACCOUNT_KEYS = ['ticketmaster', 'axs', 'eventim', 'fnac', 'ticketone'];
+const ACCOUNT_KEYS = ['ticketmaster', 'axs', 'eventim', 'fnac', 'ticketone', 'tomorrowland'];
 const SIGNUP_KEYS = ['seated', 'laylo', 'bsthydepark', 'cobrand'];
 
 const ACCOUNT_RATES = [
   { min: 1, max: 50, cents: 80 },
   { min: 51, max: 200, cents: 75 },
   { min: 201, max: 1000, cents: 65 }
+];
+// Tomorrowland has its own volume discounts, separate from standard account rates.
+const TOMORROWLAND_RATES = [
+  { min: 1, max: 100, cents: 20 },
+  { min: 101, max: 400, cents: 17 },
+  { min: 401, max: 999999, cents: 15 }
 ];
 const SIGNUP_RATES = [
   { min: 1, max: 100, cents: 35 },
@@ -24,6 +30,7 @@ const PRODUCTS = {
   eventim: { label: 'Eventim Accounts', short: 'EV', emoji: '🎭', kind: 'account', max: 1000 },
   fnac: { label: 'FNAC Accounts', short: 'FN', emoji: '🎪', kind: 'account', max: 1000 },
   ticketone: { label: 'TicketOne Accounts', short: 'TO', emoji: '🎟️', kind: 'account', max: 1000 },
+  tomorrowland: { label: 'Tomorrowland Accounts', short: 'TL', emoji: '🎆', kind: 'account', max: 999999, rates: TOMORROWLAND_RATES },
   seated: { label: 'Seated Signups', short: 'SE', emoji: '📨', kind: 'signup', max: 999999 },
   laylo: { label: 'Laylo Signups', short: 'LA', emoji: '📩', kind: 'signup', max: 999999 },
   bsthydepark: { label: 'BST Hyde Park Signups', short: 'BST', emoji: '🌳', kind: 'signup', max: 999999 },
@@ -41,7 +48,7 @@ function ratesFor(service) {
   const product = PRODUCTS[service];
   if (!product) throw new Error('Unknown service.');
   if (product.kind === 'support') return [];
-  return product.kind === 'account' ? ACCOUNT_RATES : SIGNUP_RATES;
+  return product.rates || (product.kind === 'account' ? ACCOUNT_RATES : SIGNUP_RATES);
 }
 
 function quote(service, quantity) {
@@ -85,7 +92,12 @@ function proxyText() {
     'This does **not** promise a unique IP for every item or guarantee access to third-party platforms.';
 }
 
-function rateText(kind) {
+function rateText(kind, service) {
+  if (service === 'tomorrowland') {
+    return '▫️ **1–100** — **€0.20 / account**\n' +
+      '▫️ **101–400** — **€0.17 / account**\n' +
+      '▫️ **401+** — **€0.15 / account**';
+  }
   if (kind === 'account') {
     return '▫️ **1–50** — **€0.80 / account**\n' +
       '▫️ **51–200** — **€0.75 / account**\n' +
@@ -102,7 +114,7 @@ function productChoices(keys) {
       label: product.label,
       value: key,
       description: product.kind === 'account'
-        ? 'Accounts • €0.65–€0.80 / account'
+        ? (key === 'tomorrowland' ? 'Accounts • €0.15–€0.20 / account' : 'Accounts • €0.65–€0.80 / account')
         : 'Signups • €0.28–€0.35 / signup',
       emoji: product.emoji
     };
@@ -135,7 +147,7 @@ function productPanel(key) {
     (account ? 'requested region and any requirements' : 'event, country and relevant signup details') +
     ', and our team will review your request.\n\n' +
     '**VOLUME PRICING — EUR PER ' + (account ? 'ACCOUNT' : 'SIGNUP') + '**\n' +
-    rateText(product.kind) + '\n\n' +
+    rateText(product.kind, key) + '\n\n' +
     proxyText() + '\n\n' +
     '**HOW TO ORDER**\n' +
     '1️⃣ Click **Open Private Request** below.\n' +
@@ -231,8 +243,11 @@ function panel(key) {
         embeds: [embed('🎟️ ACCOUNT GENERATORS | ALL SERVICES',
           '**AVAILABLE ACCOUNT SERVICES**\n\n' +
           ACCOUNT_KEYS.map((service) => PRODUCTS[service].emoji + ' **' + PRODUCTS[service].label + '**').join('\n') + '\n\n' +
-          '**SAME PRICING FOR EVERY GENERATOR**\n' +
+          '**STANDARD ACCOUNT GENERATORS**\n' +
+          'Ticketmaster • AXS • Eventim • FNAC • TicketOne\n' +
           rateText('account') + '\n\n' +
+          '**🎆 TOMORROWLAND ACCOUNTS — SPECIAL PRICING**\n' +
+          rateText('account', 'tomorrowland') + '\n\n' +
           proxyText() + '\n\n' +
           '**HOW IT WORKS**\n' +
           'Select your preferred platform using the menu below, tell us how many accounts you need and submit a private request. A staff member will confirm requirements, availability, and fulfillment terms.\n\n' +
@@ -257,11 +272,12 @@ function panel(key) {
     case 'services':
       return {
         embeds: [embed('💠 COMPLETE C CUSTOM SERVICE DIRECTORY',
-          '**ACCOUNT GENERATORS • 5 PLATFORMS**\n' +
+          '**ACCOUNT GENERATORS • ' + ACCOUNT_KEYS.length + ' PLATFORMS**\n' +
           ACCOUNT_KEYS.map((s) => PRODUCTS[s].emoji + ' ' + PRODUCTS[s].label).join('\n') +
-          '\n\n**EVENT SIGNUPS • 4 PLATFORMS**\n' +
+          '\n\n**EVENT SIGNUPS • ' + SIGNUP_KEYS.length + ' PLATFORMS**\n' +
           SIGNUP_KEYS.map((s) => PRODUCTS[s].emoji + ' ' + PRODUCTS[s].label).join('\n') +
-          '\n\n**ACCOUNT RATES**\n' + rateText('account') +
+          '\n\n**STANDARD ACCOUNT RATES**\n' + rateText('account') +
+          '\n\n**TOMORROWLAND ACCOUNT RATES**\n' + rateText('account', 'tomorrowland') +
           '\n\n**SIGNUP RATES**\n' + rateText('signup') +
           '\n\n🌐 A proxy is used for **each account** and **each signup**, included in the quoted unit price.\n\n' +
           '💬 Select a service below to begin a private request. No automated payment is taken.',
@@ -271,14 +287,19 @@ function panel(key) {
     case 'pricing':
       return {
         embeds: [embed('💶 PRICE LIST & VOLUME DISCOUNTS',
-          '**ALL ACCOUNT GENERATORS** — Ticketmaster / AXS / Eventim / FNAC / TicketOne\n' +
+          '**STANDARD ACCOUNT GENERATORS** — Ticketmaster / AXS / Eventim / FNAC / TicketOne\n' +
           rateText('account') + '\n\n' +
+          '**🎆 TOMORROWLAND ACCOUNT GENERATOR**\n' +
+          rateText('account', 'tomorrowland') + '\n\n' +
           '**ALL EVENT SIGNUPS** — Seated / Laylo / BST Hyde Park / CO:BRAND\n' +
           rateText('signup') + '\n\n' +
           '**EXAMPLE ESTIMATES**\n' +
           '• 25 accounts = **€20.00**\n' +
           '• 100 accounts = **€75.00**\n' +
-          '• 500 accounts = **€325.00**\n' +
+          '• 500 standard accounts = **€325.00**\n' +
+          '• 100 Tomorrowland accounts = **€20.00**\n' +
+          '• 101 Tomorrowland accounts = **€17.17**\n' +
+          '• 401 Tomorrowland accounts = **€60.15**\n' +
           '• 50 signups = **€17.50**\n' +
           '• 100 signups = **€35.00**\n' +
           '• 200 signups = **€56.00**\n\n' +
@@ -307,7 +328,7 @@ function panel(key) {
           '**Q: How do I place an order?**\n' +
           'A: Verify your account, visit **place-an-order**, select the service and enter your quantity and request details.\n\n' +
           '**Q: Are all account generators priced the same?**\n' +
-          'A: Yes. Ticketmaster, AXS, Eventim, FNAC and TicketOne share identical account quantity tiers.\n\n' +
+          'A: Ticketmaster, AXS, Eventim, FNAC and TicketOne share one price table. Tomorrowland has separate discounts: €0.20 (1–100), €0.17 (101–400), and €0.15 (401+) per account.\n\n' +
           '**Q: Are all signup services priced the same?**\n' +
           'A: Yes. Seated, Laylo, BST Hyde Park and CO:BRAND use the same signup tiers.\n\n' +
           '**Q: Are proxies included?**\n' +
@@ -332,6 +353,21 @@ function panel(key) {
           '📌 Specific event eligibility and availability must always be confirmed by staff.',
           key)]
       };
+    case 'tomorrowlandLaunch':
+      return {
+        embeds: [embed('🎆 NOW AVAILABLE | TOMORROWLAND ACCOUNTS',
+          '**New service listed: Tomorrowland Account Generator**\n\n' +
+          'We are now accepting enquiries for **Tomorrowland accounts** through the private order desk.\n\n' +
+          '**VOLUME PRICING (EUR / ACCOUNT)**\n' +
+          rateText('account', 'tomorrowland') + '\n\n' +
+          '**HOW TO REQUEST**\n' +
+          '① Visit **🎆・tomorrowland-accounts** or use **/order**.\n' +
+          '② Select the quantity and open a private ticket.\n' +
+          '③ Staff will confirm scope, permitted use, availability and delivery terms.\n\n' +
+          'The quoted rate applies to the full quantity. No automatic account creation or purchase starts from the bot. ' +
+          'Requests must comply with platform policies; no affiliation with Tomorrowland is claimed.',
+          key)]
+      };
     case 'orderGuide':
       return {
         embeds: [embed('🧾 HOW TO PLACE AN ORDER',
@@ -350,7 +386,8 @@ function panel(key) {
           'Welcome to the **C CUSTOM private order desk**. Choose a service from either menu below to begin.\n\n' +
           '**🎟️ ACCOUNT GENERATORS**\n' +
           'Ticketmaster • AXS • Eventim • FNAC • TicketOne\n' +
-          '💶 €0.80 / €0.75 / €0.65 per account, depending on quantity.\n\n' +
+          '💶 €0.80 / €0.75 / €0.65 per standard account.\n' +
+          '🎆 Tomorrowland — €0.20 (1–100), €0.17 (101–400), €0.15 (401+) each.\n\n' +
           '**📨 EVENT SIGNUPS**\n' +
           'Seated • Laylo • BST Hyde Park • CO:BRAND\n' +
           '💶 €0.35 / €0.28 per signup, depending on quantity.\n\n' +
@@ -398,6 +435,6 @@ function panel(key) {
 
 module.exports = {
   NAVY, PANEL_PREFIX, ACCOUNT_KEYS, SIGNUP_KEYS,
-  PRODUCTS, ACCOUNT_RATES, SIGNUP_RATES, money, quote,
+  PRODUCTS, ACCOUNT_RATES, TOMORROWLAND_RATES, SIGNUP_RATES, money, quote,
   embed, panel, orderButtons, rateText, proxyText
 };

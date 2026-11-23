@@ -33,7 +33,7 @@ const commands = [
   new SlashCommandBuilder()
     .setName('pricing').setDescription('View the current service price tiers.'),
   new SlashCommandBuilder()
-    .setName('services').setDescription('Browse all 9 listed services.'),
+    .setName('services').setDescription('Browse all 10 listed services.'),
   new SlashCommandBuilder()
     .setName('proxy').setDescription('Learn how proxies are included in services.'),
   new SlashCommandBuilder()
@@ -279,7 +279,7 @@ async function handleCommand(interaction) {
       return interaction.reply({
         embeds: [embed('💠 C CUSTOM | HELP & COMMANDS',
           '**WELCOME TO C CUSTOM**\n' +
-          'Your home for 5 account-generator services, 4 event-signup services and a bilingual community.\n\n' +
+          'Your home for 6 account-generator services, 4 event-signup services and a bilingual community.\n\n' +
           '**DISCOVER SERVICES**\n' +
           '📋 **/services** — Browse the full account/signup catalogue.\n' +
           '💶 **/pricing** — Check quantity tiers and estimates.\n' +
@@ -332,7 +332,7 @@ async function handleCommand(interaction) {
       return interaction.editReply(
         '✅ **C CUSTOM setup complete.**\n' +
         '• ' + result.count + ' managed channels across ' + Object.keys(result.categories).length + ' categories\n' +
-        '• Verification, language selection and all 9 service panels are ready\n' +
+        '• Verification, language selection and all 10 service panels are ready\n' +
         '• Staff-only order logs and private ticket system are ready\n\n' +
         'Start here: <#' + result.channels.verify.id + '>\n' +
         'Languages: <#' + result.channels.language.id + '>\n' +
