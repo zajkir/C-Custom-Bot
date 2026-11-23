@@ -39,8 +39,8 @@ test('Tomorrowland has independent account pricing at exact tier boundaries', ()
   assert.match(product.embeds[0].data.description, /€0.20/);
   assert.match(product.embeds[0].data.description, /€0.17/);
   assert.match(product.embeds[0].data.description, /€0.15/);
-  assert.match(product.components[0].components[0].data.custom_id, /cc:order:tomorrowland/);
-  const menu = orderButtons()[0].components[0].data.options;
+  assert.match(product.components[0].toJSON().components[0].custom_id, /cc:order:tomorrowland/);
+  const menu = orderButtons()[0].toJSON().components[0].options;
   assert.ok(menu.some((opt) => opt.value === 'tomorrowland'));
 });
 
