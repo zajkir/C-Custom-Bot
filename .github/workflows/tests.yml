@@ -1,0 +1,28 @@
+name: Discord Bot Tests
+
+on:
+  push:
+    branches: [main, 'feature/**']
+  pull_request:
+    branches: [main]
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit
+      - name: Check JavaScript syntax
+        run: |
+          node --check index.js
+          node --check src/branding.js
+          node --check src/setup.js
+          node --check tests/catalog.test.js
+      - name: Run catalog and Discord setup contract tests
+        run: npm test
