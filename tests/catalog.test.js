@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 
 const {
   ACCOUNT_KEYS, SIGNUP_KEYS, PRODUCTS, quote, money,
-  panel, orderButtons, rateText, TOMORROWLAND_RATES
+  panel, orderButtons, rateText, TOMORROWLAND_RATES, TMLN_SIGNUP_RATES
 } = require('../src/branding');
 const { CHANNELS, CATEGORY_NAMES, announceTomorrowlandOnce, TOMORROWLAND_NOTICE_MARKER } = require('../src/setup');
 
@@ -45,14 +45,47 @@ test('Tomorrowland has independent account pricing at exact tier boundaries', ()
 });
 
 test('all requested signups share the same pricing bands', () => {
-  assert.deepEqual(SIGNUP_KEYS, ['seated', 'laylo', 'bsthydepark', 'cobrand']);
-  for (const service of SIGNUP_KEYS) {
+  assert.deepEqual(SIGNUP_KEYS, ['seated', 'laylo', 'bsthydepark', 'cobrand', 'ticketmasterlivenation']);
+  for (const service of SIGNUP_KEYS.filter((key) => key !== 'ticketmasterlivenation')) {
     for (const [quantity, cents] of [[1,35], [100,35], [101,28], [200,28], [1000,28]]) {
       assert.deepEqual(quote(service, quantity), {
         unitCents: cents, totalCents: quantity * cents
       });
     }
   }
+});
+
+test('Ticketmaster / Live Nation signups use exact independent boundaries, menus and panels', () => {
+  assert.deepEqual(TMLN_SIGNUP_RATES, [
+    { min: 1, max: 50, cents: 40 },
+    { min: 51, max: 200, cents: 30 },
+    { min: 201, max: 999999, cents: 20 }
+  ]);
+  for (const [quantity, cents] of [[1,40], [50,40], [51,30], [200,30], [201,20], [999999,20]]) {
+    assert.deepEqual(quote('ticketmasterlivenation', quantity), {
+      unitCents: cents, totalCents: quantity * cents
+    });
+  }
+  assert.throws(() => quote('ticketmasterlivenation', 0), /whole-number/);
+  assert.throws(() => quote('ticketmasterlivenation', 1000000), /whole-number/);
+  const product = panel('product-ticketmasterlivenation');
+  assert.match(product.embeds[0].data.description, /€0\.40/);
+  assert.match(product.embeds[0].data.description, /€0\.30/);
+  assert.match(product.embeds[0].data.description, /€0\.20/);
+  assert.match(product.components[0].toJSON().components[0].custom_id, /cc:order:ticketmasterlivenation/);
+  assert.ok(orderButtons()[1].toJSON().components[0].options.some((opt) =>
+    opt.value === 'ticketmasterlivenation'
+  ));
+  assert.match(panel('pricing').embeds[0].data.description, /€40\.20/);
+  assert.match(panel('signups').embeds[0].data.description, /LIVE NATION/);
+});
+
+test('news channel is staff-published and introduces the new signup service', () => {
+  const channel = CHANNELS.find((c) => c.key === 'news');
+  assert.equal(channel.category, 'information');
+  assert.equal(channel.access, 'verified');
+  assert.equal(channel.panel, 'news');
+  assert.match(panel('news').embeds[0].data.description, /TICKETMASTER \/ LIVE NATION/);
 });
 
 test('quotes validate quantities and return EUR-formatted totals', () => {
@@ -63,9 +96,9 @@ test('quotes validate quantities and return EUR-formatted totals', () => {
   assert.throws(() => quote('unknown', 1), /Unknown/);
 });
 
-test('all ten products have their own English service channel', () => {
+test('all eleven products have their own English service channel', () => {
   assert.equal(Object.keys(CATEGORY_NAMES).length, 8);
-  assert.equal(CHANNELS.length, 29);
+  assert.equal(CHANNELS.length, 31);
   const names = CHANNELS.map((c) => c.name);
   const keys = CHANNELS.map((c) => c.key);
   assert.equal(new Set(keys).size, keys.length);

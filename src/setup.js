@@ -45,12 +45,14 @@ const CHANNELS = [
   { key: 'laylo', name: '📩・laylo-signups', category: 'signups', access: 'verified', panel: 'product-laylo' },
   { key: 'bsthydepark', name: '🌳・bst-hyde-park', category: 'signups', access: 'verified', panel: 'product-bsthydepark' },
   { key: 'cobrand', name: '🎟️・co-brand-signups', category: 'signups', access: 'verified', panel: 'product-cobrand' },
+  { key: 'ticketmasterlivenation', name: '🎫・ticketmaster-livenation-signups', category: 'signups', access: 'verified', panel: 'product-ticketmasterlivenation' },
 
   { key: 'services', name: '📋・service-directory', category: 'information', access: 'verified', panel: 'services' },
   { key: 'pricing', name: '💶・price-list', category: 'information', access: 'verified', panel: 'pricing' },
   { key: 'proxy', name: '🌐・proxy-policy', category: 'information', access: 'verified', panel: 'proxy' },
   { key: 'faq', name: '❔・faq', category: 'information', access: 'verified', panel: 'faq' },
   { key: 'announcements', name: '📢・announcements', category: 'information', access: 'verified', panel: 'announcements' },
+  { key: 'news', name: '📰・news', category: 'information', access: 'verified', panel: 'news' },
 
   { key: 'generalCZSK', name: '💬・general-czsk', category: 'community', access: 'czsk' },
   { key: 'generalENG', name: '💬・general-eng', category: 'community', access: 'eng' },

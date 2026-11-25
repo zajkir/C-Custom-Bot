@@ -6,7 +6,7 @@ const {
 const NAVY = 0x102D5C;
 const PANEL_PREFIX = 'C CUSTOM | PANEL:';
 const ACCOUNT_KEYS = ['ticketmaster', 'axs', 'eventim', 'fnac', 'ticketone', 'tomorrowland'];
-const SIGNUP_KEYS = ['seated', 'laylo', 'bsthydepark', 'cobrand'];
+const SIGNUP_KEYS = ['seated', 'laylo', 'bsthydepark', 'cobrand', 'ticketmasterlivenation'];
 
 const ACCOUNT_RATES = [
   { min: 1, max: 50, cents: 80 },
@@ -23,6 +23,12 @@ const SIGNUP_RATES = [
   { min: 1, max: 100, cents: 35 },
   { min: 101, max: 999999, cents: 28 }
 ];
+// Ticketmaster / Live Nation signup enquiries have a separate volume table.
+const TMLN_SIGNUP_RATES = [
+  { min: 1, max: 50, cents: 40 },
+  { min: 51, max: 200, cents: 30 },
+  { min: 201, max: 999999, cents: 20 }
+];
 
 const PRODUCTS = {
   ticketmaster: { label: 'Ticketmaster Accounts', short: 'TM', emoji: '🎟️', kind: 'account', max: 1000 },
@@ -35,6 +41,7 @@ const PRODUCTS = {
   laylo: { label: 'Laylo Signups', short: 'LA', emoji: '📩', kind: 'signup', max: 999999 },
   bsthydepark: { label: 'BST Hyde Park Signups', short: 'BST', emoji: '🌳', kind: 'signup', max: 999999 },
   cobrand: { label: 'CO:BRAND Signups', short: 'CB', emoji: '🎟️', kind: 'signup', max: 999999 },
+  ticketmasterlivenation: { label: 'Ticketmaster / Live Nation Signups', short: 'TMLN', emoji: '🎫', kind: 'signup', max: 999999, rates: TMLN_SIGNUP_RATES },
   other: { label: 'Other Services / Support', short: 'OT', emoji: '💬', kind: 'support', max: 1 }
 };
 
@@ -93,6 +100,11 @@ function proxyText() {
 }
 
 function rateText(kind, service) {
+  if (service === 'ticketmasterlivenation') {
+    return '▫️ **1–50** — **€0.40 / signup**\n' +
+      '▫️ **51–200** — **€0.30 / signup**\n' +
+      '▫️ **201+** — **€0.20 / signup**';
+  }
   if (service === 'tomorrowland') {
     return '▫️ **1–100** — **€0.20 / account**\n' +
       '▫️ **101–400** — **€0.17 / account**\n' +
@@ -115,7 +127,9 @@ function productChoices(keys) {
       value: key,
       description: product.kind === 'account'
         ? (key === 'tomorrowland' ? 'Accounts • €0.15–€0.20 / account' : 'Accounts • €0.65–€0.80 / account')
-        : 'Signups • €0.28–€0.35 / signup',
+        : (key === 'ticketmasterlivenation'
+          ? 'Signups • €0.20–€0.40 / signup'
+          : 'Signups • €0.28–€0.35 / signup'),
       emoji: product.emoji
     };
   });
@@ -260,8 +274,10 @@ function panel(key) {
         embeds: [embed('📨 EVENT SIGNUPS | ALL SERVICES',
           '**AVAILABLE SIGNUP SERVICES**\n\n' +
           SIGNUP_KEYS.map((service) => PRODUCTS[service].emoji + ' **' + PRODUCTS[service].label + '**').join('\n') + '\n\n' +
-          '**SAME PRICING FOR EVERY SIGNUP SERVICE**\n' +
+          '**STANDARD SIGNUP PRICING — SEATED / LAYLO / BST HYDE PARK / CO:BRAND**\n' +
           rateText('signup') + '\n\n' +
+          '**🎫 TICKETMASTER / LIVE NATION — SPECIAL SIGNUP PRICING**\n' +
+          rateText('signup', 'ticketmasterlivenation') + '\n\n' +
           proxyText() + '\n\n' +
           '**HOW IT WORKS**\n' +
           'Choose a service below, enter the event and quantity, and open a private ticket for confirmation.\n\n' +
@@ -278,7 +294,8 @@ function panel(key) {
           SIGNUP_KEYS.map((s) => PRODUCTS[s].emoji + ' ' + PRODUCTS[s].label).join('\n') +
           '\n\n**STANDARD ACCOUNT RATES**\n' + rateText('account') +
           '\n\n**TOMORROWLAND ACCOUNT RATES**\n' + rateText('account', 'tomorrowland') +
-          '\n\n**SIGNUP RATES**\n' + rateText('signup') +
+          '\n\n**STANDARD SIGNUP RATES**\n' + rateText('signup') +
+          '\n\n**TICKETMASTER / LIVE NATION SIGNUP RATES**\n' + rateText('signup', 'ticketmasterlivenation') +
           '\n\n🌐 A proxy is used for **each account** and **each signup**, included in the quoted unit price.\n\n' +
           '💬 Select a service below to begin a private request. No automated payment is taken.',
           key)],
@@ -291,8 +308,10 @@ function panel(key) {
           rateText('account') + '\n\n' +
           '**🎆 TOMORROWLAND ACCOUNT GENERATOR**\n' +
           rateText('account', 'tomorrowland') + '\n\n' +
-          '**ALL EVENT SIGNUPS** — Seated / Laylo / BST Hyde Park / CO:BRAND\n' +
+          '**STANDARD EVENT SIGNUPS** — Seated / Laylo / BST Hyde Park / CO:BRAND\n' +
           rateText('signup') + '\n\n' +
+          '**🎫 TICKETMASTER / LIVE NATION SIGNUPS**\n' +
+          rateText('signup', 'ticketmasterlivenation') + '\n\n' +
           '**EXAMPLE ESTIMATES**\n' +
           '• 25 accounts = **€20.00**\n' +
           '• 100 accounts = **€75.00**\n' +
@@ -302,7 +321,10 @@ function panel(key) {
           '• 401 Tomorrowland accounts = **€60.15**\n' +
           '• 50 signups = **€17.50**\n' +
           '• 100 signups = **€35.00**\n' +
-          '• 200 signups = **€56.00**\n\n' +
+          '• 200 signups = **€56.00**\n' +
+          '• 50 Ticketmaster / Live Nation signups = **€20.00**\n' +
+          '• 200 Ticketmaster / Live Nation signups = **€60.00**\n' +
+          '• 201 Ticketmaster / Live Nation signups = **€40.20**\n\n' +
           '**PRICING POLICY**\n' +
           'One quantity tier applies to **the full order**, not progressively. Proxy usage is included. Quotes are subject to availability and staff confirmation. No automatic charges.',
           key)]
@@ -330,7 +352,7 @@ function panel(key) {
           '**Q: Are all account generators priced the same?**\n' +
           'A: Ticketmaster, AXS, Eventim, FNAC and TicketOne share one price table. Tomorrowland has separate discounts: €0.20 (1–100), €0.17 (101–400), and €0.15 (401+) per account.\n\n' +
           '**Q: Are all signup services priced the same?**\n' +
-          'A: Yes. Seated, Laylo, BST Hyde Park and CO:BRAND use the same signup tiers.\n\n' +
+          'A: No. Seated, Laylo, BST Hyde Park and CO:BRAND share the standard tiers. Ticketmaster / Live Nation signups have separate tiers (€0.40 for 1–50, €0.30 for 51–200, €0.20 for 201+).\n\n' +
           '**Q: Are proxies included?**\n' +
           'A: Yes. Proxy use is included for each account and each signup. Specific proxy requirements need staff confirmation.\n\n' +
           '**Q: Is payment taken automatically?**\n' +
@@ -339,6 +361,22 @@ function panel(key) {
           'A: No. Delivery, availability, validity and any registration result depend on the agreed scope and the platform/event rules.\n\n' +
           '**Q: Can I change my language?**\n' +
           'A: Yes, use **choose-language** at any time.',
+          key)]
+      };
+    case 'news':
+      return {
+        embeds: [embed('📰 C CUSTOM | NEWS & UPDATES',
+          'This room is the official place for **new services, updates and important changes**.\n\n' +
+          '**🎫 NEW SERVICE — TICKETMASTER / LIVE NATION SIGNUPS**\n' +
+          'We are now accepting enquiries for Ticketmaster / Live Nation event signups through our private service desk.\n\n' +
+          '**VOLUME PRICING — EUR PER SIGNUP**\n' +
+          rateText('signup', 'ticketmasterlivenation') + '\n\n' +
+          '**HOW TO REQUEST**\n' +
+          '① Go to **🎫・ticketmaster-livenation-signups** or choose the service with **/order**.\n' +
+          '② Enter the quantity and event details.\n' +
+          '③ Staff will confirm eligibility, availability and conditions before processing.\n\n' +
+          '📌 Staff can post future service announcements here. Prices apply to the full quantity. ' +
+          'No registration is started by opening a ticket. This service is independent of the platforms and must follow their rules.',
           key)]
       };
     case 'announcements':
@@ -390,7 +428,8 @@ function panel(key) {
           '🎆 Tomorrowland — €0.20 (1–100), €0.17 (101–400), €0.15 (401+) each.\n\n' +
           '**📨 EVENT SIGNUPS**\n' +
           'Seated • Laylo • BST Hyde Park • CO:BRAND\n' +
-          '💶 €0.35 / €0.28 per signup, depending on quantity.\n\n' +
+          '💶 €0.35 / €0.28 per standard signup.\n' +
+          '🎫 Ticketmaster / Live Nation — €0.40 (1–50), €0.30 (51–200), €0.20 (201+) per signup.\n\n' +
           '🌐 **Proxy usage is included for every account and signup.**\n\n' +
           '**WHAT HAPPENS NEXT?**\n' +
           '① Choose a service below.\n' +
@@ -435,6 +474,6 @@ function panel(key) {
 
 module.exports = {
   NAVY, PANEL_PREFIX, ACCOUNT_KEYS, SIGNUP_KEYS,
-  PRODUCTS, ACCOUNT_RATES, TOMORROWLAND_RATES, SIGNUP_RATES, money, quote,
+  PRODUCTS, ACCOUNT_RATES, TOMORROWLAND_RATES, SIGNUP_RATES, TMLN_SIGNUP_RATES, money, quote,
   embed, panel, orderButtons, rateText, proxyText
 };

@@ -4,13 +4,13 @@ English-language service catalogue, Discord verification, language roles, navy-b
 
 ## What's included (code ready for deployment)
 
-- **10 services** with EUR pricing, including a separate Tomorrowland volume price table, and dedicated rooms
-- **8 categories / 29 managed channels**, no deletion of unrelated channels
+- **11 services** with EUR pricing, including a separate Tomorrowland volume price table, and dedicated rooms
+- **8 categories / 31 managed channels**, no deletion of unrelated channels
 - Welcome, detailed rules, starter guide, FAQ, proxy policy, price list, announcements and order guide
 - A basic **Verify & Enter** button that assigns the ✅ Verified role
 - Language roles **🇬🇧 ENG**, **🇨🇿 Czech**, **🇸🇰 Slovak**
 - **general-eng** and **general-czsk**, with language-based visibility
-- Branded service panels and dropdown menus for choosing among all ten services
+- Branded service panels and dropdown menus for choosing among all eleven services
 - Private order request modals with a quantity, service, details and calculated price estimate
 - Staff-only ticket logs, ticket closing and role-based private channel access
 - **/help /pricing /services /proxy /guide /order /ping /ticketclose /setup**
@@ -49,7 +49,15 @@ Example totals: 100 = €20.00, 101 = €17.17, 400 = €68.00, 401 = €60.15. 
 | BST Hyde Park | €0.35 | €0.28 |
 | CO:BRAND | €0.35 | €0.28 |
 
-Prices are **EUR per signup**. A selected tier applies to *the entire quantity*.
+**Ticketmaster / Live Nation event signups** use a separate price table:
+
+| Quantity | Price per signup |
+|---|---:|
+| 1–50 | €0.40 |
+| 51–200 | €0.30 |
+| 201+ | €0.20 |
+
+Prices are **EUR per signup**. A selected tier applies to *the entire quantity* (including at quantity 200, where the middle tier applies). The service is a private enquiry/quotation workflow, not an automated registration tool.
 
 ### Proxy usage statement
 
@@ -63,8 +71,8 @@ This project is a storefront/request system only. The Tomorrowland listing is an
 |---|---|
 | 📌 START HERE | welcome, rules, verification, choose-language, getting-started |
 | 🎟️ ACCOUNT GENERATORS | account-generators, ticketmaster-accounts, axs-accounts, eventim-accounts, fnac-accounts, ticketone-accounts, tomorrowland-accounts |
-| 📨 EVENT SIGNUPS | signup-services, seated-signups, laylo-signups, bst-hyde-park, co-brand-signups |
-| 📚 INFORMATION | service-directory, price-list, proxy-policy, faq, announcements |
+| 📨 EVENT SIGNUPS | signup-services, seated-signups, laylo-signups, bst-hyde-park, co-brand-signups, ticketmaster-livenation-signups |
+| 📚 INFORMATION | service-directory, price-list, proxy-policy, faq, announcements, news |
 | 💬 COMMUNITY | general-czsk, general-eng |
 | 🎫 ORDER & SUPPORT | place-an-order, how-to-order, support-desk |
 | 🔐 PRIVATE TICKETS | New private customer tickets appear here |
@@ -78,7 +86,7 @@ Users choose one of three language roles via buttons. Only verified users can ac
 2. Check **Environment**: `DISCORD_TOKEN` must be set securely. **Never paste tokens into GitHub or Discord chats.**
 3. Restart the deployment so it pulls the newest commit. Confirm `C CUSTOM BOT ONLINE` in Console.
 4. On Discord, use **/setup** as the owner or a member with **Manage Server** permission.
-5. Wait for the setup-complete confirmation. New categories, product rooms and panels are created. The bot posts a **single Tomorrowland launch notice** in **announcements** on the first successful `/setup`; it records a persistent channel-topic marker so repeated setup calls do not repost the announcement. Existing managed V2 channels are reused and repositioned; unrelated channels are not removed.
+5. Wait for the setup-complete confirmation. New categories, product rooms and panels are created. The new `ticketmaster-livenation-signups` room appears in EVENT SIGNUPS and `news` in INFORMATION; the news panel announces the new service. The bot posts a **single Tomorrowland launch notice** in **announcements** on the first successful `/setup`; it records a persistent channel-topic marker so repeated setup calls do not repost the announcement. Existing managed V2 channels are reused and repositioned; unrelated channels are not removed.
 6. Ensure the bot's server role is **above the Verified and language roles**, and has **Manage Roles, Manage Channels, Send Messages, View Channels, Embed Links, Read Message History**.
 7. Test: Verify → Choose a language → Browse services → Open a private ticket → Confirm its price → Close it.
 
@@ -100,7 +108,7 @@ In Discord Developer Portal > **Bot**, enable **Server Members Intent** for memb
 
 ## Testing
 
-Run `npm install` and then `npm test` to check prices, quantity boundaries, panels and channel layout.
+Run `npm install` and then `npm test` to check standard and special signup prices, exact quantity boundaries, panels, menus and channel layout.
 
 ## Security notes
 
